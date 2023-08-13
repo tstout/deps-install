@@ -28,7 +28,7 @@
       (.send req (HttpResponse$BodyHandlers/ofByteArray))))
 
 (defn uncompress
-  "Given a gziped byte array, convert it to an oncompressed
+  "Given a gziped byte array, convert it to an uncompressed
    string"
   [byte-array]
   (with-open [in (java.util.zip.GZIPInputStream.
@@ -70,12 +70,9 @@
 
   (last (fetch "http://clojars.org/repo/feed.clj.gz"))
 
-  (count (fetch "http://clojars.org/repo/feed.clj.gz"))
+  (count @clojars-meta)
 
-  (->> (fetch "http://clojars.org/repo/feed.clj.gz")
-       filter-meta)
+  (filter-meta @clojars-meta)
 
-
-  (slurp "http://clojars.org/repo/feed.clj.gz")
   ;;
   )
