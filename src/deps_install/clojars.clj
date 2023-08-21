@@ -28,7 +28,7 @@
       (.send req (HttpResponse$BodyHandlers/ofByteArray))))
 
 (defn uncompress
-  "Given a gziped byte array, convert it to an uncompressed
+  "Given a gzipped byte array, convert it to an uncompressed
    string"
   [byte-array]
   (with-open [in (java.util.zip.GZIPInputStream.
@@ -54,23 +54,55 @@
   (delay
     (fetch "http://clojars.org/repo/feed.clj.gz")))
 
+(defn filter-scm [m]
+  (let [{{:keys [connection developer-connection]} :scm} m]
+    {:conn connection
+     :dev-conn developer-connection}))
 
 (defn filter-meta [x]
-  (map #(select-keys % [:group-id :artifact-id :url])
-       x))
+  (-> (map #(select-keys % [:group-id :artifact-id :scm]) x)))
 
 (defn select-group [grp]
   (->> @clojars-meta
        (filter #(= (:group-id %) grp))))
 
+(defn select-artifact [grp artifact-id]
+  (->> grp
+       select-group
+       (filter #(= (:artifact-id %) artifact-id))
+       first))
+
+(defn calc-github-address [m]
+  (let [{{:keys [url]} :scm} m]
+    (if (.contains url "github")
+      (str url ".git")
+      (throw (.Exception
+              (format "url for artifact is '%s' - not in github" url))))))
+
+(defn repo-clone-address [group artifact-id]
+  (-> (select-artifact "org.rksm" "suitable")
+      calc-github-address))'
+
+
 
 (comment
 
-  (select-group "theseus")
+  (select-group "org.rksm")
+  (select-artifact "org.rksm" "suitable")
 
-  (last (fetch "http://clojars.org/repo/feed.clj.gz"))
+  (-> (select-artifact "org.rksm" "suitable")
+      calc-github-address)
+
+
+
+
+  (->> @clojars-meta
+       (map filter-meta))
+
+
 
   (count @clojars-meta)
+  (last @clojars-meta)
 
   (filter-meta @clojars-meta)
 
