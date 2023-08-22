@@ -52,7 +52,9 @@
 (def clojars-meta
   "Download of clojars meta data"
   (delay
-    (fetch "http://clojars.org/repo/feed.clj.gz")))
+    (println "Fetching clojars metadata...this takes a while.")
+    (fetch "http://clojars.org/repo/feed.clj.gz")
+    (println "Fetching metadata complete")))
 
 (defn filter-scm [m]
   (let [{{:keys [connection developer-connection]} :scm} m]
@@ -66,12 +68,21 @@
   (->> @clojars-meta
        (filter #(= (:group-id %) grp))))
 
+
+(defn- throw-if-nil [msg m]
+  (if (nil? m)
+    (throw (Exception. (format "Does not exist %s" msg)))
+    m))
+
 (defn select-artifact [grp artifact-id]
   (->> grp
        select-group
        (filter #(= (:artifact-id %) artifact-id))
-       first))
+       first
+       (throw-if-nil (format "group: %s artifact %s" grp artifact-id))))
 
+;; TODO - need better error handling here when 
+;; coordinates not found in meta from clojars
 (defn calc-github-address [m]
   (let [{{:keys [url]} :scm} m]
     (if (.contains url "github")
@@ -80,8 +91,9 @@
               (format "url for artifact is '%s' - not in github" url))))))
 
 (defn repo-clone-address [group artifact-id]
-  (-> (select-artifact "org.rksm" "suitable")
-      calc-github-address))'
+  (-> #_(select-artifact "org.rksm" "suitable")
+   (select-artifact group artifact-id)
+      calc-github-address))
 
 
 
@@ -89,6 +101,9 @@
 
   (select-group "org.rksm")
   (select-artifact "org.rksm" "suitable")
+
+  (select-artifact "foo" "bar")
+
 
   (-> (select-artifact "org.rksm" "suitable")
       calc-github-address)
@@ -99,7 +114,7 @@
   (->> @clojars-meta
        (map filter-meta))
 
-
+  (nil? {})
 
   (count @clojars-meta)
   (last @clojars-meta)

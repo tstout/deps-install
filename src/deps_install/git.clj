@@ -25,14 +25,13 @@
 (defn clone-repo [m]
   (let [{:keys [group-id artifact-id]} m]
     (sh-exec
-      ["git" "clone" (repo-clone-address group-id artifact-id)])))
-
+     ["git" "clone" (repo-clone-address group-id artifact-id)])))
 
 (comment
   (user/trace! #'git-process)
 
 
-  (sh-exec 
+  (sh-exec
    ["git" "clone" "https://github.com/clojure-emacs/clj-suitable.git"])
 
 
