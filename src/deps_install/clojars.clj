@@ -53,8 +53,9 @@
   "Download of clojars meta data"
   (delay
     (println "Fetching clojars metadata...this takes a while.")
-    (fetch "http://clojars.org/repo/feed.clj.gz")
-    (println "Fetching metadata complete")))
+    (let [meta (fetch "http://clojars.org/repo/feed.clj.gz")]
+      (println "Fetching metadata complete")
+      meta)))
 
 (defn filter-scm [m]
   (let [{{:keys [connection developer-connection]} :scm} m]
@@ -67,7 +68,6 @@
 (defn select-group [grp]
   (->> @clojars-meta
        (filter #(= (:group-id %) grp))))
-
 
 (defn- throw-if-nil [msg m]
   (if (nil? m)
@@ -96,7 +96,6 @@
       calc-github-address))
 
 
-
 (comment
 
   (select-group "org.rksm")
@@ -107,14 +106,6 @@
 
   (-> (select-artifact "org.rksm" "suitable")
       calc-github-address)
-
-
-
-
-  (->> @clojars-meta
-       (map filter-meta))
-
-  (nil? {})
 
   (count @clojars-meta)
   (last @clojars-meta)
