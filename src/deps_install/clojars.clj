@@ -95,10 +95,13 @@
    (select-artifact group artifact-id)
       calc-github-address))
 
+;; Consider a fn that determines the git coordinates for a release
+;; from :scm/:version-meta
+
 
 (comment
 
-  (select-group "org.rksm")
+  (select-group "leiningen-core")
   (select-artifact "org.rksm" "suitable")
 
   (select-artifact "foo" "bar")
