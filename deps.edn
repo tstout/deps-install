@@ -1,4 +1,6 @@
 {:deps    {org.clojure/tools.cli         {:mvn/version "0.3.5"}
+           org.clojure/core.async        {:mvn/version "1.6.681"}
+           
            io.github.clojure/tools.build {:git/tag "v0.9.5"
                                           :git/sha "24f2894"}}
  :paths   ["resources" "src"]
